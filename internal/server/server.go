@@ -8,6 +8,7 @@ import (
 	"Go-ProductMS/pkg/logger"
 	productService "Go-ProductMS/proto/product"
 	"context"
+	"fmt"
 	"github.com/go-playground/validator/v10"
 	grpcrecovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/pkg/errors"
@@ -44,7 +45,12 @@ func (s *server) Run() error {
 	productMgRepo := repository.NewProductMongoRepo()
 	productUsecase := usecase.NewProductUsecase(productMgRepo, s.log)
 
-	l, err := net.Listen("tcp", s.cfg.Server.Port)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = s.cfg.Server.Port
+	}
+
+	l, err := net.Listen("tcp", fmt.Sprintf("localhost:%s", s.cfg.Server.Port))
 	if err != nil {
 		return errors.Wrap(err, "failed to listen")
 	}

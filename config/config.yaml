@@ -14,3 +14,9 @@ Logger:
   DisableStacktrace: false
   Encoding: json
   Level: info
+
+MongoDB:
+  URI: mongodb://localhost:27017
+  User: admin
+  Password: admin
+  DB: products

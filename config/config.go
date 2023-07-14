@@ -10,6 +10,7 @@ type Config struct {
 	AppVersion string
 	Server     Server
 	Logger     Logger
+	MongoDB    MongoDB
 }
 
 type Server struct {
@@ -27,6 +28,13 @@ type Logger struct {
 	DisableStacktrace bool
 	Encoding          string
 	Level             string
+}
+
+type MongoDB struct {
+	URI      string
+	User     string
+	Password string
+	DB       string
 }
 
 func exportConfig() error {

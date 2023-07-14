@@ -6,6 +6,7 @@ run:
 	go run cmd/main.go
 
 proto:
+	rm -f proto/product/*.go
 	protoc proto/product/product.proto --go_out=proto/product --go-grpc_out=proto/product
 
 # ==============================================================================

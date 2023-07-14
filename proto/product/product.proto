@@ -46,7 +46,7 @@ message UpdateReq {
   string ImageURL = 6;
   repeated string Photos = 7;
   int64 Quantity = 8;
-  int64 Rating = 9;
+  int32 Rating = 9;
 }
 
 message UpdateRes {

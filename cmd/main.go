@@ -2,14 +2,18 @@ package main
 
 import (
 	"Go-ProductMS/config"
+	"Go-ProductMS/internal/server"
 	"Go-ProductMS/pkg/logger"
-	"encoding/json"
+	"Go-ProductMS/pkg/mongodb"
+	"context"
 	"log"
-	"net/http"
 )
 
 func main() {
 	log.Println("Starting products service...")
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	cfg, err := config.ParseConfig()
 	if err != nil {
@@ -27,16 +31,19 @@ func main() {
 	)
 	appLogger.Infof("Success parsed config: %#v", cfg.AppVersion)
 
-	http.HandleFunc("/api/v1", func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("Request received: %v", r.RemoteAddr)
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(map[string]string{"message": "ok"}); err != nil {
-			log.Printf("unable to encode response, %v", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+	mongoDBConn, err := mongodb.NewMongoDBConnection(ctx, cfg)
+	if err != nil {
+		appLogger.Fatalf("unable to connect to MongoDB, %v", err)
+	}
 
-		log.Fatal(http.ListenAndServe(cfg.Server.Port, nil))
-	})
+	defer func() {
+		if err := mongoDBConn.Disconnect(ctx); err != nil {
+			appLogger.Fatalf("unable to disconnect from MongoDB, %v", err)
+		}
+	}()
+
+	appLogger.Info("Success connected to MongoDB")
+
+	s := server.NewServer(appLogger, cfg)
+	appLogger.Fatal(s.Run())
 }

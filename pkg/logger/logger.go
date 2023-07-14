@@ -2,9 +2,11 @@ package logger
 
 import (
 	"Go-ProductMS/config"
+	"errors"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"os"
+	"syscall"
 )
 
 type Logger interface {
@@ -44,6 +46,22 @@ var loggerLevelMap = map[string]zapcore.Level{
 	"fatal":  zapcore.FatalLevel,
 }
 
+// WrappedWriteSyncer is a helper struct implementing zapcore.WriteSyncer to
+// wrap a standard os.Stdout handle, giving control over the WriteSyncer's
+// Sync() function. Sync() results in an error on Windows in combination with
+// os.Stdout ("sync /dev/stdout: The handle is invalid."). WrappedWriteSyncer
+// simply does nothing when Sync() is called by Zap.
+type WrappedWriteSyncer struct {
+	file *os.File
+}
+
+func (mws WrappedWriteSyncer) Write(p []byte) (n int, err error) {
+	return mws.file.Write(p)
+}
+func (mws WrappedWriteSyncer) Sync() error {
+	return nil
+}
+
 func (l *apiLogger) getLoggerLevel(cfg *config.Config) zapcore.Level {
 	level, exist := loggerLevelMap[cfg.Logger.Level]
 	if !exist {
@@ -57,7 +75,7 @@ func (l *apiLogger) getLoggerLevel(cfg *config.Config) zapcore.Level {
 func (l *apiLogger) InitLogger() {
 	logLevel := l.getLoggerLevel(l.cfg)
 
-	logWriter := zapcore.AddSync(os.Stderr)
+	logWriter := zapcore.Lock(WrappedWriteSyncer{os.Stdout})
 
 	var encoderCfg zapcore.EncoderConfig
 	if l.cfg.Server.Development {
@@ -84,12 +102,13 @@ func (l *apiLogger) InitLogger() {
 	logger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
 
 	l.sugarLogger = logger.Sugar()
-	if err := l.sugarLogger.Sync(); err != nil {
+	if err := l.sugarLogger.Sync(); err != nil && (!errors.Is(err, syscall.EBADF) && !errors.Is(err, syscall.ENOTTY)) {
 		l.sugarLogger.Error(err)
 	}
 }
 
 // Logger methods
+
 func (l *apiLogger) Debug(args ...interface{}) {
 	l.sugarLogger.Debug(args...)
 }
