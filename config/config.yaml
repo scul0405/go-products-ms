@@ -1,0 +1,4 @@
+AppVersion: 1.0.0
+
+Server:
+  Port: 8080
