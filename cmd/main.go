@@ -2,6 +2,7 @@ package main
 
 import (
 	"Go-ProductMS/config"
+	"Go-ProductMS/pkg/logger"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -14,6 +15,17 @@ func main() {
 	if err != nil {
 		log.Fatalf("unable to parse config, %v", err)
 	}
+
+	appLogger := logger.NewApiLogger(cfg)
+	appLogger.InitLogger()
+	appLogger.Info("Starting products service...")
+	appLogger.Infof(
+		"AppVersion: %s, LogLevel: %s, DevelopmentMode: %s",
+		cfg.AppVersion,
+		cfg.Logger.Level,
+		cfg.Server.Development,
+	)
+	appLogger.Infof("Success parsed config: %#v", cfg.AppVersion)
 
 	http.HandleFunc("/api/v1", func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Request received: %v", r.RemoteAddr)

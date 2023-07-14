@@ -2,3 +2,10 @@ AppVersion: 1.0.0
 
 Server:
   Port: 8080
+  Development: true
+
+Logger:
+  DisableCaller: false
+  DisableStacktrace: false
+  Encoding: json
+  Level: info
