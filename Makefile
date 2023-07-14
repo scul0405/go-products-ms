@@ -1,10 +1,12 @@
 .PHONY:
 
 # ==============================================================================
-# Run server
 
 run:
 	go run cmd/main.go
+
+proto:
+	protoc proto/product/product.proto --go_out=proto/product --go-grpc_out=proto/product
 
 # ==============================================================================
 # Modules support
