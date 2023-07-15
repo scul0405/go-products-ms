@@ -2,6 +2,7 @@ package server
 
 import (
 	"Go-ProductMS/config"
+	"Go-ProductMS/internal/interceptors"
 	grpcproduct "Go-ProductMS/internal/product/delivery/grpc"
 	"Go-ProductMS/internal/product/repository"
 	"Go-ProductMS/internal/product/usecase"
@@ -11,6 +12,7 @@ import (
 	"fmt"
 	"github.com/go-playground/validator/v10"
 	grpcrecovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
+	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
@@ -49,6 +51,8 @@ func (s *server) Run() error {
 	productMgRepo := repository.NewProductMongoRepo(s.mongoDB)
 	productUsecase := usecase.NewProductUsecase(productMgRepo, s.log)
 
+	im := interceptors.NewInterceptorManager(s.log, s.cfg)
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = s.cfg.Server.Port
@@ -67,7 +71,9 @@ func (s *server) Run() error {
 		Time:              s.cfg.Server.Timeout * time.Minute,
 	}),
 		grpc.ChainUnaryInterceptor(
+			grpc_ctxtags.UnaryServerInterceptor(),
 			grpcrecovery.UnaryServerInterceptor(),
+			im.Logger,
 		),
 	)
 
