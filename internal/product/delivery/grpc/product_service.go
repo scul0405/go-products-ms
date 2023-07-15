@@ -5,6 +5,7 @@ import (
 	"Go-ProductMS/internal/product/usecase"
 	grpcErrors "Go-ProductMS/pkg/grpc_errors"
 	"Go-ProductMS/pkg/logger"
+	"Go-ProductMS/pkg/util"
 	productSvc "Go-ProductMS/proto/product"
 	"context"
 	"github.com/go-playground/validator/v10"
@@ -63,13 +64,77 @@ func (p *productService) Create(ctx context.Context, req *productSvc.CreateReq) 
 }
 
 func (p *productService) Update(ctx context.Context, req *productSvc.UpdateReq) (*productSvc.UpdateRes, error) {
-	panic("implement me")
+	productID, err := primitive.ObjectIDFromHex(req.GetProductID())
+	if err != nil {
+		p.log.Errorf("primitive.ObjectIDFromHex: %v", err)
+		return nil, grpcErrors.ErrorResponse(err, err.Error())
+	}
+
+	categoryID, err := primitive.ObjectIDFromHex(req.GetCategoryID())
+	if err != nil {
+		p.log.Errorf("primitive.ObjectIDFromHex: %v", err)
+		return nil, grpcErrors.ErrorResponse(err, err.Error())
+	}
+
+	product := &models.Product{
+		ProductID:   productID,
+		CategoryID:  categoryID,
+		Name:        req.GetName(),
+		Description: req.GetDescription(),
+		Price:       req.GetPrice(),
+		ImageURL:    &req.ImageURL,
+		Photos:      req.GetPhotos(),
+		Quantity:    req.GetQuantity(),
+		Rating:      int(req.GetRating()),
+	}
+
+	if err := p.validate.StructCtx(ctx, product); err != nil {
+		p.log.Errorf("validate.StructCtx: %v", err)
+		return nil, grpcErrors.ErrorResponse(err, err.Error())
+	}
+
+	update, err := p.productUsecase.Update(ctx, product)
+	if err != nil {
+		p.log.Errorf("productUC.Update: %v", err)
+		return nil, grpcErrors.ErrorResponse(err, err.Error())
+	}
+
+	return &productSvc.UpdateRes{Product: update.ToProto()}, nil
 }
 
 func (p *productService) GetByID(ctx context.Context, req *productSvc.GetByIDReq) (*productSvc.GetByIDRes, error) {
-	panic("implement me")
+	productID, err := primitive.ObjectIDFromHex(req.GetProductID())
+	if err != nil {
+		p.log.Errorf("primitive.ObjectIDFromHex: %v", err)
+		return nil, grpcErrors.ErrorResponse(err, err.Error())
+	}
+
+	product, err := p.productUsecase.GetByID(ctx, productID)
+	if err != nil {
+		p.log.Errorf("productUC.GetByID: %v", err)
+		return nil, grpcErrors.ErrorResponse(err, err.Error())
+	}
+
+	return &productSvc.GetByIDRes{Product: product.ToProto()}, nil
 }
 
 func (p *productService) Search(ctx context.Context, req *productSvc.SearchReq) (*productSvc.SearchRes, error) {
-	panic("implement me")
+	pagination := util.NewPagination(int(req.GetPage()), int(req.GetSize()))
+
+	products, err := p.productUsecase.Search(ctx, req.GetSearch(), pagination)
+	if err != nil {
+		p.log.Errorf("productUC.Search: %v", err)
+		return nil, grpcErrors.ErrorResponse(err, err.Error())
+	}
+
+	p.log.Infof("PRODUCTS: %-v", products)
+
+	return &productSvc.SearchRes{
+		Products:   products.ToProtoList(),
+		TotalCount: products.TotalCount,
+		TotalPages: products.TotalPages,
+		Page:       products.Page,
+		Size:       products.Size,
+		HasMore:    products.HasMore,
+	}, nil
 }

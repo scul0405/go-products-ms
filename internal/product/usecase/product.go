@@ -4,6 +4,7 @@ import (
 	"Go-ProductMS/internal/models"
 	"Go-ProductMS/internal/product/domain"
 	"Go-ProductMS/pkg/logger"
+	"Go-ProductMS/pkg/util"
 	"context"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -12,7 +13,7 @@ type ProductUseCase interface {
 	Create(ctx context.Context, product *models.Product) (*models.Product, error)
 	Update(ctx context.Context, product *models.Product) (*models.Product, error)
 	GetByID(ctx context.Context, productID primitive.ObjectID) (*models.Product, error)
-	Search(ctx context.Context, search string, page, size int64) ([]*models.Product, error)
+	Search(ctx context.Context, search string, pagination *util.Pagination) (*models.ProductsList, error)
 }
 
 type productUsecase struct {
@@ -35,13 +36,13 @@ func (p *productUsecase) Create(ctx context.Context, product *models.Product) (*
 }
 
 func (p *productUsecase) Update(ctx context.Context, product *models.Product) (*models.Product, error) {
-	panic("implement me")
+	return p.productRepo.Update(ctx, product)
 }
 
 func (p *productUsecase) GetByID(ctx context.Context, productID primitive.ObjectID) (*models.Product, error) {
-	panic("implement me")
+	return p.productRepo.GetByID(ctx, productID)
 }
 
-func (p *productUsecase) Search(ctx context.Context, search string, page, size int64) ([]*models.Product, error) {
-	panic("implement me")
+func (p *productUsecase) Search(ctx context.Context, search string, pagination *util.Pagination) (*models.ProductsList, error) {
+	return p.productRepo.Search(ctx, search, pagination)
 }
