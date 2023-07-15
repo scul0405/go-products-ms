@@ -44,6 +44,6 @@ func main() {
 
 	appLogger.Info("Success connected to MongoDB")
 
-	s := server.NewServer(appLogger, cfg)
+	s := server.NewServer(appLogger, cfg, mongoDBConn)
 	appLogger.Fatal(s.Run())
 }

@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProductsServiceClient interface {
-	Create(ctx context.Context, in *UpdateReq, opts ...grpc.CallOption) (*UpdateRes, error)
+	Create(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*CreateRes, error)
 	Update(ctx context.Context, in *UpdateReq, opts ...grpc.CallOption) (*UpdateRes, error)
 	GetByID(ctx context.Context, in *GetByIDReq, opts ...grpc.CallOption) (*GetByIDRes, error)
 	Search(ctx context.Context, in *SearchReq, opts ...grpc.CallOption) (*SearchRes, error)
@@ -36,8 +36,8 @@ func NewProductsServiceClient(cc grpc.ClientConnInterface) ProductsServiceClient
 	return &productsServiceClient{cc}
 }
 
-func (c *productsServiceClient) Create(ctx context.Context, in *UpdateReq, opts ...grpc.CallOption) (*UpdateRes, error) {
-	out := new(UpdateRes)
+func (c *productsServiceClient) Create(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*CreateRes, error) {
+	out := new(CreateRes)
 	err := c.cc.Invoke(ctx, "/productService.ProductsService/Create", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func (c *productsServiceClient) Search(ctx context.Context, in *SearchReq, opts 
 // All implementations must embed UnimplementedProductsServiceServer
 // for forward compatibility
 type ProductsServiceServer interface {
-	Create(context.Context, *UpdateReq) (*UpdateRes, error)
+	Create(context.Context, *CreateReq) (*CreateRes, error)
 	Update(context.Context, *UpdateReq) (*UpdateRes, error)
 	GetByID(context.Context, *GetByIDReq) (*GetByIDRes, error)
 	Search(context.Context, *SearchReq) (*SearchRes, error)
@@ -87,7 +87,7 @@ type ProductsServiceServer interface {
 type UnimplementedProductsServiceServer struct {
 }
 
-func (UnimplementedProductsServiceServer) Create(context.Context, *UpdateReq) (*UpdateRes, error) {
+func (UnimplementedProductsServiceServer) Create(context.Context, *CreateReq) (*CreateRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
 func (UnimplementedProductsServiceServer) Update(context.Context, *UpdateReq) (*UpdateRes, error) {
@@ -113,7 +113,7 @@ func RegisterProductsServiceServer(s grpc.ServiceRegistrar, srv ProductsServiceS
 }
 
 func _ProductsService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateReq)
+	in := new(CreateReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -125,7 +125,7 @@ func _ProductsService_Create_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/productService.ProductsService/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProductsServiceServer).Create(ctx, req.(*UpdateReq))
+		return srv.(ProductsServiceServer).Create(ctx, req.(*CreateReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }

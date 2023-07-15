@@ -5,12 +5,13 @@ import (
 	"Go-ProductMS/internal/product/domain"
 	"Go-ProductMS/pkg/logger"
 	"context"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type ProductUseCase interface {
 	Create(ctx context.Context, product *models.Product) (*models.Product, error)
 	Update(ctx context.Context, product *models.Product) (*models.Product, error)
-	GetByID(ctx context.Context, productID string) (*models.Product, error)
+	GetByID(ctx context.Context, productID primitive.ObjectID) (*models.Product, error)
 	Search(ctx context.Context, search string, page, size int64) ([]*models.Product, error)
 }
 
@@ -30,14 +31,14 @@ func NewProductUsecase(
 }
 
 func (p *productUsecase) Create(ctx context.Context, product *models.Product) (*models.Product, error) {
-	panic("implement me")
+	return p.productRepo.Create(ctx, product)
 }
 
 func (p *productUsecase) Update(ctx context.Context, product *models.Product) (*models.Product, error) {
 	panic("implement me")
 }
 
-func (p *productUsecase) GetByID(ctx context.Context, productID string) (*models.Product, error) {
+func (p *productUsecase) GetByID(ctx context.Context, productID primitive.ObjectID) (*models.Product, error) {
 	panic("implement me")
 }
 

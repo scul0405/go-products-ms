@@ -12,6 +12,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	grpcrecovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/pkg/errors"
+	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
@@ -22,17 +23,20 @@ import (
 )
 
 type server struct {
-	log logger.Logger
-	cfg *config.Config
+	log     logger.Logger
+	cfg     *config.Config
+	mongoDB *mongo.Client
 }
 
 func NewServer(
 	log logger.Logger,
 	cfg *config.Config,
+	mongoDB *mongo.Client,
 ) *server {
 	return &server{
-		log: log,
-		cfg: cfg,
+		log:     log,
+		cfg:     cfg,
+		mongoDB: mongoDB,
 	}
 }
 
@@ -42,7 +46,7 @@ func (s *server) Run() error {
 
 	validate := validator.New()
 
-	productMgRepo := repository.NewProductMongoRepo()
+	productMgRepo := repository.NewProductMongoRepo(s.mongoDB)
 	productUsecase := usecase.NewProductUsecase(productMgRepo, s.log)
 
 	port := os.Getenv("PORT")
