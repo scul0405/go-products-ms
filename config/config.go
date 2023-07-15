@@ -31,10 +31,8 @@ type Logger struct {
 }
 
 type MongoDB struct {
-	URI      string
-	User     string
-	Password string
-	DB       string
+	URI string
+	DB  string
 }
 
 func exportConfig() error {

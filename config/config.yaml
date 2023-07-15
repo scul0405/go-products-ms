@@ -16,7 +16,5 @@ Logger:
   Level: info
 
 MongoDB:
-  URI: mongodb://localhost:27017
-  User: admin
-  Password: admin
+  URI: mongodb+srv://scul0405:f1yzmbuPHh91J4jy@cluster0.cj7ydgn.mongodb.net/products?retryWrites=true&w=majority
   DB: products

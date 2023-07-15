@@ -17,10 +17,7 @@ const (
 
 func NewMongoDBConnection(ctx context.Context, cfg *config.Config) (*mongo.Client, error) {
 	opts := options.Client().ApplyURI(cfg.MongoDB.URI).
-		SetAuth(options.Credential{
-			Username: cfg.MongoDB.User,
-			Password: cfg.MongoDB.Password,
-		}).SetConnectTimeout(connectionTimeout).
+		SetConnectTimeout(connectionTimeout).
 		SetMinPoolSize(minPoolSize).
 		SetMaxPoolSize(maxPoolSize).
 		SetMaxConnIdleTime(minConnIdleTime)
