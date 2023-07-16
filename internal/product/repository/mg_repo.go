@@ -5,6 +5,7 @@ import (
 	producterrors "Go-ProductMS/pkg/product_errors"
 	"Go-ProductMS/pkg/util"
 	"context"
+	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -31,6 +32,9 @@ func NewProductMongoRepo(mongoDB *mongo.Client) *productMongoRepo {
 
 // Create creates a new product
 func (p *productMongoRepo) Create(ctx context.Context, product *models.Product) (*models.Product, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "productMongoRepo.Create")
+	defer span.Finish()
+
 	collection := p.mongoDB.Database(ProductDatabaseName).Collection(ProductCollectionName)
 
 	product.CreatedAt = time.Now()
@@ -52,6 +56,9 @@ func (p *productMongoRepo) Create(ctx context.Context, product *models.Product) 
 }
 
 func (p *productMongoRepo) Update(ctx context.Context, product *models.Product) (*models.Product, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "productMongoRepo.Update")
+	defer span.Finish()
+
 	collection := p.mongoDB.Database(ProductDatabaseName).Collection(ProductCollectionName)
 
 	upsert := true
@@ -71,6 +78,9 @@ func (p *productMongoRepo) Update(ctx context.Context, product *models.Product) 
 }
 
 func (p *productMongoRepo) GetByID(ctx context.Context, productID primitive.ObjectID) (*models.Product, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "productMongoRepo.GetByID")
+	defer span.Finish()
+
 	collection := p.mongoDB.Database(ProductDatabaseName).Collection(ProductCollectionName)
 
 	var prod models.Product
@@ -82,6 +92,9 @@ func (p *productMongoRepo) GetByID(ctx context.Context, productID primitive.Obje
 }
 
 func (p *productMongoRepo) Search(ctx context.Context, search string, pagination *util.Pagination) (*models.ProductsList, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "productMongoRepo.Search")
+	defer span.Finish()
+
 	collection := p.mongoDB.Database(ProductDatabaseName).Collection(ProductCollectionName)
 
 	filter := bson.D{

@@ -3,9 +3,11 @@ package main
 import (
 	"Go-ProductMS/config"
 	"Go-ProductMS/internal/server"
+	"Go-ProductMS/pkg/jaeger"
 	"Go-ProductMS/pkg/logger"
 	"Go-ProductMS/pkg/mongodb"
 	"context"
+	"github.com/opentracing/opentracing-go"
 	"log"
 )
 
@@ -31,6 +33,16 @@ func main() {
 	)
 	appLogger.Infof("Success parsed config: %#v", cfg.AppVersion)
 
+	tracer, closer, err := jaeger.InitJaeger(cfg)
+	if err != nil {
+		appLogger.Fatal("cannot create tracer", err)
+	}
+	appLogger.Info("Jaeger connected")
+
+	opentracing.SetGlobalTracer(tracer)
+	defer closer.Close()
+	appLogger.Info("Opentracing connected")
+
 	mongoDBConn, err := mongodb.NewMongoDBConnection(ctx, cfg)
 	if err != nil {
 		appLogger.Fatalf("unable to connect to MongoDB, %v", err)
@@ -44,6 +56,6 @@ func main() {
 
 	appLogger.Info("Success connected to MongoDB")
 
-	s := server.NewServer(appLogger, cfg, mongoDBConn)
+	s := server.NewServer(appLogger, cfg, mongoDBConn, tracer)
 	appLogger.Fatal(s.Run())
 }

@@ -11,6 +11,8 @@ type Config struct {
 	Server     Server
 	Logger     Logger
 	MongoDB    MongoDB
+	Metrics    Metrics
+	Jaeger     Jaeger
 }
 
 type Server struct {
@@ -28,6 +30,20 @@ type Logger struct {
 	DisableStacktrace bool
 	Encoding          string
 	Level             string
+}
+
+// Metrics config
+type Metrics struct {
+	Port        string
+	URL         string
+	ServiceName string
+}
+
+// Jaeger config
+type Jaeger struct {
+	Host        string
+	ServiceName string
+	LogSpans    bool
 }
 
 type MongoDB struct {

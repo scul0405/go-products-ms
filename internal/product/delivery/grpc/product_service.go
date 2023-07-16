@@ -9,6 +9,7 @@ import (
 	productSvc "Go-ProductMS/proto/product"
 	"context"
 	"github.com/go-playground/validator/v10"
+	"github.com/opentracing/opentracing-go"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -32,6 +33,9 @@ func NewProductService(
 }
 
 func (p *productService) Create(ctx context.Context, req *productSvc.CreateReq) (*productSvc.CreateRes, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "productService.Create")
+	defer span.Finish()
+
 	categoryID, err := primitive.ObjectIDFromHex(req.GetCategoryID())
 	if err != nil {
 		p.log.Errorf("primitive.ObjectIDFromHex: %v", err)
@@ -64,6 +68,9 @@ func (p *productService) Create(ctx context.Context, req *productSvc.CreateReq) 
 }
 
 func (p *productService) Update(ctx context.Context, req *productSvc.UpdateReq) (*productSvc.UpdateRes, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "productService.Update")
+	defer span.Finish()
+
 	productID, err := primitive.ObjectIDFromHex(req.GetProductID())
 	if err != nil {
 		p.log.Errorf("primitive.ObjectIDFromHex: %v", err)
@@ -103,6 +110,9 @@ func (p *productService) Update(ctx context.Context, req *productSvc.UpdateReq) 
 }
 
 func (p *productService) GetByID(ctx context.Context, req *productSvc.GetByIDReq) (*productSvc.GetByIDRes, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "productService.GetByID")
+	defer span.Finish()
+
 	productID, err := primitive.ObjectIDFromHex(req.GetProductID())
 	if err != nil {
 		p.log.Errorf("primitive.ObjectIDFromHex: %v", err)
@@ -119,6 +129,9 @@ func (p *productService) GetByID(ctx context.Context, req *productSvc.GetByIDReq
 }
 
 func (p *productService) Search(ctx context.Context, req *productSvc.SearchReq) (*productSvc.SearchRes, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "productService.Search")
+	defer span.Finish()
+
 	pagination := util.NewPagination(int(req.GetPage()), int(req.GetSize()))
 
 	products, err := p.productUsecase.Search(ctx, req.GetSearch(), pagination)

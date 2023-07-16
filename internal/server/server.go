@@ -13,7 +13,12 @@ import (
 	"github.com/go-playground/validator/v10"
 	grpcrecovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
+	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/labstack/echo/v4"
+	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -27,6 +32,7 @@ import (
 type server struct {
 	log     logger.Logger
 	cfg     *config.Config
+	tracing opentracing.Tracer
 	mongoDB *mongo.Client
 }
 
@@ -34,11 +40,13 @@ func NewServer(
 	log logger.Logger,
 	cfg *config.Config,
 	mongoDB *mongo.Client,
+	tracer opentracing.Tracer,
 ) *server {
 	return &server{
 		log:     log,
 		cfg:     cfg,
 		mongoDB: mongoDB,
+		tracing: tracer,
 	}
 }
 
@@ -72,6 +80,8 @@ func (s *server) Run() error {
 	}),
 		grpc.ChainUnaryInterceptor(
 			grpc_ctxtags.UnaryServerInterceptor(),
+			grpc_opentracing.UnaryServerInterceptor(),
+			grpc_prometheus.UnaryServerInterceptor,
 			grpcrecovery.UnaryServerInterceptor(),
 			im.Logger,
 		),
@@ -79,6 +89,7 @@ func (s *server) Run() error {
 
 	productSvc := grpcproduct.NewProductService(s.log, productUsecase, validate)
 	productService.RegisterProductsServiceServer(grpcServer, productSvc)
+	grpc_prometheus.Register(grpcServer)
 
 	go func() {
 		s.log.Infof("starting grpc server at %s", s.cfg.Server.Port)
@@ -88,6 +99,16 @@ func (s *server) Run() error {
 	if s.cfg.Server.Development {
 		reflection.Register(grpcServer)
 	}
+
+	metricsServer := echo.New()
+	go func() {
+		metricsServer.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
+		s.log.Infof("Metrics server is running on port: %s", s.cfg.Metrics.Port)
+		if err := metricsServer.Start(s.cfg.Metrics.Port); err != nil {
+			s.log.Error(err)
+			cancel()
+		}
+	}()
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
