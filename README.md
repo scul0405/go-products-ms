@@ -14,8 +14,9 @@ http://localhost:9090
 http://localhost:3000
 
 For local development:
+Note: rename config.yaml.example to config.yaml and change mongodb uri before start server
 ```
 make tidy // add libraries
-make local // runs docker-compose.local.yml
+make local // runs docker-compose.local.yml 
 make run // run gprc server at localhost:8080
 ```
