@@ -26,5 +26,5 @@ Jaeger:
   LogSpans: false
 
 MongoDB:
-  URI: mongodb+srv://scul0405:f1yzmbuPHh91J4jy@cluster0.cj7ydgn.mongodb.net/products?retryWrites=true&w=majority
+  URI: mongodb+srv://<username>:<password>@<host>/<database>?<parameter_list>
   DB: products
