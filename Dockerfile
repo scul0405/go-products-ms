@@ -10,5 +10,5 @@ WORKDIR /app
 COPY --from=builder /app/service .
 COPY --from=builder /app/config/config.yaml ./config/config.yaml
 
-#EXPOSE 3000
+#EXPOSE 5000
 CMD ["/app/service"]

@@ -1,22 +1,5 @@
 version: "3.9"
 services:
-  app:
-    container_name: service
-    build:
-        context: .
-        dockerfile: Dockerfile
-    ports:
-      - "5000:5000"
-    restart: always
-    depends_on:
-      - redis
-      - prometheus
-      - grafana
-      - jaeger
-      - node_exporter
-    networks:
-        - products_network
-
   redis:
     image: redis:6-alpine
     container_name: user_redis

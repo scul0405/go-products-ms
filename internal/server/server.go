@@ -61,11 +61,6 @@ func (s *server) Run() error {
 
 	im := interceptors.NewInterceptorManager(s.log, s.cfg)
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = s.cfg.Server.Port
-	}
-
 	l, err := net.Listen("tcp", fmt.Sprintf("localhost:%s", s.cfg.Server.Port))
 	if err != nil {
 		return errors.Wrap(err, "failed to listen")
