@@ -9,6 +9,9 @@ proto:
 	rm -f proto/product/*.go
 	protoc proto/product/product.proto --go_out=proto/product --go-grpc_out=proto/product
 
+local:
+	docker-compose -f docker-compose.local.yml up --build
+
 # ==============================================================================
 # Modules support
 
