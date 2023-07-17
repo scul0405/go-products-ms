@@ -25,6 +25,11 @@ Jaeger:
   ServiceName: products_microservice
   LogSpans: false
 
+Kafka:
+  Broker1: "localhost:9091"
+  Broker2: "localhost:9092"
+  Broker3: "localhost:9093"
+
 MongoDB:
   URI: mongodb+srv://<username>:<password>@<host>/<database>?<parameter_list>
   DB: products

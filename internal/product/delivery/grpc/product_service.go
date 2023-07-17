@@ -15,14 +15,14 @@ import (
 
 type productService struct {
 	log            logger.Logger
-	productUsecase usecase.ProductUseCase
+	productUsecase usecase.ProductsUseCase
 	validate       *validator.Validate
 	productSvc.UnimplementedProductsServiceServer
 }
 
 func NewProductService(
 	log logger.Logger,
-	productUsecase usecase.ProductUseCase,
+	productUsecase usecase.ProductsUseCase,
 	validate *validator.Validate,
 ) *productService {
 	return &productService{

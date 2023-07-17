@@ -4,6 +4,7 @@ import (
 	"Go-ProductMS/config"
 	"Go-ProductMS/internal/interceptors"
 	grpcproduct "Go-ProductMS/internal/product/delivery/grpc"
+	"Go-ProductMS/internal/product/delivery/kafka"
 	"Go-ProductMS/internal/product/repository"
 	"Go-ProductMS/internal/product/usecase"
 	"Go-ProductMS/pkg/logger"
@@ -85,6 +86,9 @@ func (s *server) Run() error {
 	productSvc := grpcproduct.NewProductService(s.log, productUsecase, validate)
 	productService.RegisterProductsServiceServer(grpcServer, productSvc)
 	grpc_prometheus.Register(grpcServer)
+
+	productsCG := kafka.NewProductsConsumerGroup(s.cfg.Kafka.Brokers, "products_group", s.log, s.cfg, productUsecase)
+	productsCG.RunConsumers(ctx, cancel)
 
 	go func() {
 		s.log.Infof("starting grpc server at %s", s.cfg.Server.Port)

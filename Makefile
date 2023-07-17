@@ -12,6 +12,11 @@ proto:
 local:
 	docker-compose -f docker-compose.local.yml up --build
 
+crate_topics:
+	#docker exec -it kafka1 kafka-topics --zookeeper zookeeper:2181 --create --topic products --partitions 3 --replication-factor 2
+	docker exec -it kafka1 kafka-topics --zookeeper zookeeper:2181 --create --topic create-product --partitions 3 --replication-factor 2
+	docker exec -it kafka1 kafka-topics --zookeeper zookeeper:2181 --create --topic update-product --partitions 3 --replication-factor 2
+
 # ==============================================================================
 # Modules support
 

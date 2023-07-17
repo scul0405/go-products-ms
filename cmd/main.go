@@ -4,6 +4,7 @@ import (
 	"Go-ProductMS/config"
 	"Go-ProductMS/internal/server"
 	"Go-ProductMS/pkg/jaeger"
+	"Go-ProductMS/pkg/kafka"
 	"Go-ProductMS/pkg/logger"
 	"Go-ProductMS/pkg/mongodb"
 	"context"
@@ -55,6 +56,17 @@ func main() {
 	}()
 
 	appLogger.Info("Success connected to MongoDB")
+
+	conn, err := kafka.NewKafkaConn(cfg)
+	if err != nil {
+		appLogger.Fatal("NewKafkaConn", err)
+	}
+	defer conn.Close()
+	brokers, err := conn.Brokers()
+	if err != nil {
+		appLogger.Fatal("conn.Brokers", err)
+	}
+	appLogger.Infof("Kafka connected: %v", brokers)
 
 	s := server.NewServer(appLogger, cfg, mongoDBConn, tracer)
 	appLogger.Fatal(s.Run())

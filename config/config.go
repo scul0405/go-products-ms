@@ -13,8 +13,10 @@ type Config struct {
 	MongoDB    MongoDB
 	Metrics    Metrics
 	Jaeger     Jaeger
+	Kafka      Kafka
 }
 
+// Server config
 type Server struct {
 	Port              string
 	Development       bool
@@ -25,6 +27,7 @@ type Server struct {
 	MaxConnectionAge  time.Duration
 }
 
+// Logger config
 type Logger struct {
 	DisableCaller     bool
 	DisableStacktrace bool
@@ -46,9 +49,15 @@ type Jaeger struct {
 	LogSpans    bool
 }
 
+// MongoDB config
 type MongoDB struct {
 	URI string
 	DB  string
+}
+
+// Kafka config
+type Kafka struct {
+	Brokers []string
 }
 
 func exportConfig() error {
