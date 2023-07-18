@@ -10,30 +10,6 @@ import (
 	"github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/compress"
 	"sync"
-	"time"
-)
-
-const (
-	minBytes               = 10e3
-	maxBytes               = 10e6
-	queueCapacity          = 100
-	heartbeatInterval      = 3 * time.Second
-	commitInterval         = 0
-	partitionWatchInterval = 5 * time.Second
-	maxAttempts            = 3
-	dialTimeout            = 3 * time.Minute
-
-	writerReadTimeout  = 10 * time.Second
-	writerWriteTimeout = 10 * time.Second
-
-	createProductTopic   = "create-product"
-	createProductWorkers = 16
-	updateProductTopic   = "update-product"
-	updateProductWorkers = 16
-
-	deadLetterQueueTopic = "dead-letter-queue"
-
-	productsGroupID = "products_group"
 )
 
 type ProductsConsumerGroup struct {

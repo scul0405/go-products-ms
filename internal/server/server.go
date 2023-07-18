@@ -10,6 +10,7 @@ import (
 	"Go-ProductMS/pkg/logger"
 	productService "Go-ProductMS/proto/product"
 	"context"
+	"crypto/tls"
 	"fmt"
 	"github.com/go-playground/validator/v10"
 	grpcrecovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
@@ -22,12 +23,18 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
 	"net"
 	"os"
 	"os/signal"
 	"time"
+)
+
+const (
+	certFile = "ssl/server.crt"
+	keyFile  = "ssl/server.pem"
 )
 
 type server struct {
@@ -68,12 +75,21 @@ func (s *server) Run() error {
 	}
 	defer l.Close()
 
-	grpcServer := grpc.NewServer(grpc.KeepaliveParams(keepalive.ServerParameters{
-		MaxConnectionIdle: s.cfg.Server.MaxConnectionIdle * time.Minute,
-		MaxConnectionAge:  s.cfg.Server.MaxConnectionAge * time.Minute,
-		Timeout:           s.cfg.Server.Timeout * time.Second,
-		Time:              s.cfg.Server.Timeout * time.Minute,
-	}),
+	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+	if err != nil {
+		s.log.Fatalf("failed to load key pair: %s", err)
+	}
+
+	s.log.Info("CERT loaded")
+
+	grpcServer := grpc.NewServer(
+		grpc.Creds(credentials.NewServerTLSFromCert(&cert)),
+		grpc.KeepaliveParams(keepalive.ServerParameters{
+			MaxConnectionIdle: s.cfg.Server.MaxConnectionIdle * time.Minute,
+			MaxConnectionAge:  s.cfg.Server.MaxConnectionAge * time.Minute,
+			Timeout:           s.cfg.Server.Timeout * time.Second,
+			Time:              s.cfg.Server.Timeout * time.Minute,
+		}),
 		grpc.ChainUnaryInterceptor(
 			grpc_ctxtags.UnaryServerInterceptor(),
 			grpc_opentracing.UnaryServerInterceptor(),

@@ -35,9 +35,11 @@ func NewProductService(
 func (p *productService) Create(ctx context.Context, req *productSvc.CreateReq) (*productSvc.CreateRes, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "productService.Create")
 	defer span.Finish()
+	incomingMessage.Inc()
 
 	categoryID, err := primitive.ObjectIDFromHex(req.GetCategoryID())
 	if err != nil {
+		errorMessage.Inc()
 		p.log.Errorf("primitive.ObjectIDFromHex: %v", err)
 		return nil, grpcErrors.ErrorResponse(err, err.Error())
 	}
@@ -55,25 +57,30 @@ func (p *productService) Create(ctx context.Context, req *productSvc.CreateReq) 
 
 	created, err := p.productUsecase.Create(ctx, product)
 	if err != nil {
+		errorMessage.Inc()
 		p.log.Errorf("productUC.Create: %v", err)
 		return nil, grpcErrors.ErrorResponse(err, err.Error())
 	}
 
+	successMessage.Inc()
 	return &productSvc.CreateRes{Product: created.ToProto()}, nil
 }
 
 func (p *productService) Update(ctx context.Context, req *productSvc.UpdateReq) (*productSvc.UpdateRes, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "productService.Update")
 	defer span.Finish()
+	incomingMessage.Inc()
 
 	productID, err := primitive.ObjectIDFromHex(req.GetProductID())
 	if err != nil {
+		errorMessage.Inc()
 		p.log.Errorf("primitive.ObjectIDFromHex: %v", err)
 		return nil, grpcErrors.ErrorResponse(err, err.Error())
 	}
 
 	categoryID, err := primitive.ObjectIDFromHex(req.GetCategoryID())
 	if err != nil {
+		errorMessage.Inc()
 		p.log.Errorf("primitive.ObjectIDFromHex: %v", err)
 		return nil, grpcErrors.ErrorResponse(err, err.Error())
 	}
@@ -92,46 +99,55 @@ func (p *productService) Update(ctx context.Context, req *productSvc.UpdateReq) 
 
 	update, err := p.productUsecase.Update(ctx, product)
 	if err != nil {
+		errorMessage.Inc()
 		p.log.Errorf("productUC.Update: %v", err)
 		return nil, grpcErrors.ErrorResponse(err, err.Error())
 	}
 
+	successMessage.Inc()
 	return &productSvc.UpdateRes{Product: update.ToProto()}, nil
 }
 
 func (p *productService) GetByID(ctx context.Context, req *productSvc.GetByIDReq) (*productSvc.GetByIDRes, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "productService.GetByID")
 	defer span.Finish()
+	incomingMessage.Inc()
 
 	productID, err := primitive.ObjectIDFromHex(req.GetProductID())
 	if err != nil {
+		errorMessage.Inc()
 		p.log.Errorf("primitive.ObjectIDFromHex: %v", err)
 		return nil, grpcErrors.ErrorResponse(err, err.Error())
 	}
 
 	product, err := p.productUsecase.GetByID(ctx, productID)
 	if err != nil {
+		errorMessage.Inc()
 		p.log.Errorf("productUC.GetByID: %v", err)
 		return nil, grpcErrors.ErrorResponse(err, err.Error())
 	}
 
+	successMessage.Inc()
 	return &productSvc.GetByIDRes{Product: product.ToProto()}, nil
 }
 
 func (p *productService) Search(ctx context.Context, req *productSvc.SearchReq) (*productSvc.SearchRes, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "productService.Search")
 	defer span.Finish()
+	incomingMessage.Inc()
 
 	pagination := util.NewPagination(int(req.GetPage()), int(req.GetSize()))
 
 	products, err := p.productUsecase.Search(ctx, req.GetSearch(), pagination)
 	if err != nil {
+		errorMessage.Inc()
 		p.log.Errorf("productUC.Search: %v", err)
 		return nil, grpcErrors.ErrorResponse(err, err.Error())
 	}
 
 	p.log.Infof("PRODUCTS: %-v", products)
 
+	successMessage.Inc()
 	return &productSvc.SearchRes{
 		Products:   products.ToProtoList(),
 		TotalCount: products.TotalCount,

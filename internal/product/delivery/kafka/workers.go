@@ -41,15 +41,18 @@ func (pcg *ProductsConsumerGroup) createProductWorker(
 			string(m.Key),
 			string(m.Value),
 		)
+		incomingMessage.Inc()
 
 		var prod models.Product
 		if err := json.Unmarshal(m.Value, &prod); err != nil {
+			errorMessage.Inc()
 			pcg.log.Errorf("json.Unmarshal", err)
 			continue
 		}
 
 		created, err := pcg.productsUC.Create(ctx, &prod)
 		if err != nil {
+			errorMessage.Inc()
 			if err := pcg.publishErrorMessage(ctx, w, m, err); err != nil {
 				pcg.log.Errorf("productsUC.Create.publishErrorMessage", err)
 				continue
@@ -57,10 +60,12 @@ func (pcg *ProductsConsumerGroup) createProductWorker(
 		}
 
 		if err := r.CommitMessages(ctx, m); err != nil {
+			errorMessage.Inc()
 			pcg.log.Errorf("FetchMessage", err)
 			continue
 		}
 
+		successMessage.Inc()
 		pcg.log.Infof("Created product: %v", created)
 	}
 }
@@ -96,32 +101,18 @@ func (pcg *ProductsConsumerGroup) updateProductWorker(
 			string(m.Key),
 			string(m.Value),
 		)
+		incomingMessage.Inc()
 
 		var prod models.Product
 		if err := json.Unmarshal(m.Value, &prod); err != nil {
-			errMsg := &models.ErrorMessage{
-				Offset:    m.Offset,
-				Error:     err.Error(),
-				Time:      m.Time.UTC(),
-				Partition: m.Partition,
-				Topic:     m.Topic,
-			}
-
-			errMsgBytes, err := json.Marshal(errMsg)
-			if err != nil {
-				pcg.log.Errorf("productsUC.Update.json.Marshal", err)
-				continue
-			}
-			if err := w.WriteMessages(ctx, kafka.Message{
-				Value: errMsgBytes,
-			}); err != nil {
-				pcg.log.Errorf("productsUC.Update.WriteMessages", err)
-				continue
-			}
+			errorMessage.Inc()
+			pcg.log.Errorf("json.Unmarshal", err)
+			continue
 		}
 
 		updated, err := pcg.productsUC.Update(ctx, &prod)
 		if err != nil {
+			errorMessage.Inc()
 			if err := pcg.publishErrorMessage(ctx, w, m, err); err != nil {
 				pcg.log.Errorf("productsUC.Update.publishErrorMessage", err)
 				continue
@@ -129,10 +120,12 @@ func (pcg *ProductsConsumerGroup) updateProductWorker(
 		}
 
 		if err := r.CommitMessages(ctx, m); err != nil {
+			errorMessage.Inc()
 			pcg.log.Errorf("FetchMessage", err)
 			continue
 		}
 
+		successMessage.Inc()
 		pcg.log.Infof("Update product: %v", updated)
 	}
 }

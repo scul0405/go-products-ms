@@ -1,3 +1,10 @@
 .idea
 config/config.yaml
 data
+keyfile
+ssl/ca.crt
+ssl/ca.key
+ssl/server.crt
+ssl/server.csr
+ssl/server.key
+ssl/server.pem
