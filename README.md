@@ -13,6 +13,10 @@ http://localhost:9090
 
 http://localhost:3000
 
+### Kafka UI:
+
+http://localhost:9000
+
 For local development: \
 Note: rename config.yaml.example to config.yaml and change mongodb uri before start server
 ```
