@@ -53,11 +53,6 @@ func (p *productService) Create(ctx context.Context, req *productSvc.CreateReq) 
 		Rating:      int(req.GetRating()),
 	}
 
-	if err := p.validate.StructCtx(ctx, product); err != nil {
-		p.log.Errorf("validate.StructCtx: %v", err)
-		return nil, grpcErrors.ErrorResponse(err, err.Error())
-	}
-
 	created, err := p.productUsecase.Create(ctx, product)
 	if err != nil {
 		p.log.Errorf("productUC.Create: %v", err)
@@ -93,11 +88,6 @@ func (p *productService) Update(ctx context.Context, req *productSvc.UpdateReq) 
 		Photos:      req.GetPhotos(),
 		Quantity:    req.GetQuantity(),
 		Rating:      int(req.GetRating()),
-	}
-
-	if err := p.validate.StructCtx(ctx, product); err != nil {
-		p.log.Errorf("validate.StructCtx: %v", err)
-		return nil, grpcErrors.ErrorResponse(err, err.Error())
 	}
 
 	update, err := p.productUsecase.Update(ctx, product)
