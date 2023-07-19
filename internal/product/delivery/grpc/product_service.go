@@ -35,7 +35,7 @@ func NewProductService(
 func (p *productService) Create(ctx context.Context, req *productSvc.CreateReq) (*productSvc.CreateRes, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "productService.Create")
 	defer span.Finish()
-	incomingMessage.Inc()
+	createMessages.Inc()
 
 	categoryID, err := primitive.ObjectIDFromHex(req.GetCategoryID())
 	if err != nil {
@@ -69,7 +69,7 @@ func (p *productService) Create(ctx context.Context, req *productSvc.CreateReq) 
 func (p *productService) Update(ctx context.Context, req *productSvc.UpdateReq) (*productSvc.UpdateRes, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "productService.Update")
 	defer span.Finish()
-	incomingMessage.Inc()
+	updateMessages.Inc()
 
 	productID, err := primitive.ObjectIDFromHex(req.GetProductID())
 	if err != nil {
@@ -111,7 +111,7 @@ func (p *productService) Update(ctx context.Context, req *productSvc.UpdateReq) 
 func (p *productService) GetByID(ctx context.Context, req *productSvc.GetByIDReq) (*productSvc.GetByIDRes, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "productService.GetByID")
 	defer span.Finish()
-	incomingMessage.Inc()
+	getByIdMessages.Inc()
 
 	productID, err := primitive.ObjectIDFromHex(req.GetProductID())
 	if err != nil {
@@ -134,7 +134,7 @@ func (p *productService) GetByID(ctx context.Context, req *productSvc.GetByIDReq
 func (p *productService) Search(ctx context.Context, req *productSvc.SearchReq) (*productSvc.SearchRes, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "productService.Search")
 	defer span.Finish()
-	incomingMessage.Inc()
+	searchMessages.Inc()
 
 	pagination := util.NewPagination(int(req.GetPage()), int(req.GetSize()))
 

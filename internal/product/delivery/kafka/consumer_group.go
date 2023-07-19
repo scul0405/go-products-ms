@@ -47,7 +47,7 @@ func (pcg *ProductsConsumerGroup) getNewKafkaReader(kafkaURL []string, topic, gr
 		CommitInterval:         commitInterval,
 		PartitionWatchInterval: partitionWatchInterval,
 		MaxAttempts:            maxAttempts,
-		Logger:                 kafka.LoggerFunc(pcg.log.Infof),
+		Logger:                 kafka.LoggerFunc(pcg.log.Debugf),
 		ErrorLogger:            kafka.LoggerFunc(pcg.log.Errorf),
 		Dialer: &kafka.Dialer{
 			Timeout: dialTimeout,

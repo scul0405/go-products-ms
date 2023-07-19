@@ -20,4 +20,21 @@ var (
 		Name: "products_error_incoming_grpc_message_total",
 		Help: "The total number of error incoming gRPC messages",
 	})
+
+	createMessages = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "products_create_incoming_grpc_requests_total",
+		Help: "The total number of incoming create product gRPC messages",
+	})
+	updateMessages = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "products_update_incoming_grpc_requests_total",
+		Help: "The total number of incoming update product gRPC messages",
+	})
+	getByIdMessages = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "products_get_by_id_incoming_grpc_requests_total",
+		Help: "The total number of incoming get by id product gRPC messages",
+	})
+	searchMessages = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "products_search_incoming_grpc_requests_total",
+		Help: "The total number of incoming search products gRPC messages",
+	})
 )
