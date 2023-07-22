@@ -8,7 +8,6 @@ import (
 	"context"
 	"github.com/go-playground/validator/v10"
 	"github.com/opentracing/opentracing-go"
-	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -41,22 +40,12 @@ func (p *productsUsecase) Create(ctx context.Context, product *models.Product) (
 	span, ctx := opentracing.StartSpanFromContext(ctx, "productsUsecase.Create")
 	defer span.Finish()
 
-	if err := p.validate.StructCtx(ctx, product); err != nil {
-		p.log.Errorf("validate.StructCtx: %v", err)
-		return nil, errors.Wrap(err, "validate")
-	}
-
 	return p.productRepo.Create(ctx, product)
 }
 
 func (p *productsUsecase) Update(ctx context.Context, product *models.Product) (*models.Product, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "productsUsecase.Update")
 	defer span.Finish()
-
-	if err := p.validate.StructCtx(ctx, product); err != nil {
-		p.log.Errorf("validate.StructCtx: %v", err)
-		return nil, errors.Wrap(err, "validate")
-	}
 
 	return p.productRepo.Update(ctx, product)
 }

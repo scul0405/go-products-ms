@@ -13,7 +13,7 @@ proto:
 	protoc proto/product/product.proto --go_out=proto/product --go-grpc_out=proto/product
 
 local:
-	docker-compose -f docker-compose.local.yml up --build
+	docker-compose -f docker-compose.local.yaml up
 
 crate_topics:
 	#docker exec -it kafka1 kafka-topics --zookeeper zookeeper:2181 --create --topic products --partitions 3 --replication-factor 2

@@ -7,6 +7,7 @@ import (
 	"Go-ProductMS/pkg/logger"
 	"context"
 	"encoding/json"
+	"github.com/go-playground/validator/v10"
 	"github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/compress"
 	"sync"
@@ -18,6 +19,7 @@ type ProductsConsumerGroup struct {
 	log        logger.Logger
 	cfg        *config.Config
 	productsUC usecase.ProductsUseCase
+	validate   *validator.Validate
 }
 
 func NewProductsConsumerGroup(
@@ -25,13 +27,15 @@ func NewProductsConsumerGroup(
 	groupID string,
 	log logger.Logger,
 	cfg *config.Config,
-	productsUC usecase.ProductsUseCase) *ProductsConsumerGroup {
+	productsUC usecase.ProductsUseCase,
+	validate *validator.Validate) *ProductsConsumerGroup {
 	return &ProductsConsumerGroup{
 		Brokers:    brokers,
 		GroupID:    groupID,
 		log:        log,
 		cfg:        cfg,
 		productsUC: productsUC,
+		validate:   validate,
 	}
 }
 
